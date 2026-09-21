@@ -5,7 +5,7 @@ test('create, autosave, reload, duplicate and trash/restore a song', async ({ pa
   await page.getByRole('button', { name: '作成する' }).click()
   await expect(page.getByLabel('曲のタイトル')).toHaveValue('夜のノート')
   await page.getByLabel('曲のタイトル').fill('夜明けのノート')
-  await page.getByLabel('テーマ', { exact: true }).click()
+  await page.getByLabel('曲のタイトル').press('Tab')
   await page.reload()
   await expect(page.getByLabel('曲のタイトル')).toHaveValue('夜明けのノート')
   await page.goto('/songs')

@@ -20,3 +20,9 @@
 - 検証: lint / typecheck / test（6件）/ build成功。Desktop / Phone E2E 4件成功。
 - 修正: 複製EdgeのID、モバイルメニューと通知の重なり。
 - 残課題: Canvas以降の制作操作（次Phase）。
+
+## Phase C — Canvas
+- XYFlow adapter、Node/Edge CRUD、pan/zoom/fit/minimap/multi-select、drag-end保存。
+- Type/Status/Tags/Favorite、Focus、filter、collapse、端末別viewport。
+- 検証: lint / typecheck / test（8件）/ build成功。Desktop / Phone E2E 6件成功。
+- 残課題: Lyricsへの受け渡し（Phase D）、専用Mobile操作（Phase F）。

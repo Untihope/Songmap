@@ -1,0 +1,18 @@
+import { test, expect } from '@playwright/test'
+test('create and edit node, child, favorite and preserve position',async({page})=>{
+ await page.goto('/songs/new');await page.getByLabel('タイトル',{exact:true}).fill('Canvas test');await page.getByRole('button',{name:'作成する'}).click()
+ await page.getByRole('button',{name:'＋ 言葉を追加'}).click()
+ await page.getByLabel('新しいノード').fill('夜の街');await page.getByRole('button',{name:'追加',exact:true}).click()
+ await expect(page.locator('.map-node').filter({hasText:'夜の街'})).toBeVisible()
+ await page.getByRole('button',{name:'編集',exact:true}).click()
+ await page.getByLabel('ノードの種類').selectOption('emotion')
+ await page.getByLabel('ノードのタグ').fill('夜, 孤独')
+ await page.getByLabel('編集を閉じる').click()
+ await page.getByRole('button',{name:'お気に入り',exact:true}).click()
+ await page.getByRole('button',{name:'＋子',exact:true}).click()
+ await page.getByLabel('新しいノード').fill('夜明け前');await page.getByRole('button',{name:'追加',exact:true}).click()
+ await expect(page.locator('.map-node').filter({hasText:'夜明け前'})).toBeVisible()
+ await page.reload()
+ await expect(page.locator('.map-node').filter({hasText:'夜の街'})).toContainText('感情')
+ await expect(page.locator('.map-node').filter({hasText:'夜の街'})).toContainText('#孤独')
+})

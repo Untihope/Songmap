@@ -1,6 +1,6 @@
 import { Home, Songs, NewSong } from '../features/songs/Songs'
-import { Workspace } from '../features/songs/Workspace'
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
+const Workspace = lazy(() => import('../features/songs/Workspace').then(m => ({ default: m.Workspace })))
 import { NavLink, Outlet, Route, Routes, Link } from 'react-router-dom'
 import { Moon, Sun, AudioLines, Settings } from 'lucide-react'
 import { useUI } from '../state/ui'
@@ -18,4 +18,4 @@ export function Shell() {
   {(notice || error) && <div className={`toast ${error ? 'error' : ''}`} role={error ? 'alert' : 'status'}>{error || notice}<button aria-label="通知を閉じる" onClick={() => useUI.setState({ notice: '', error: '' })}>×</button></div>}</>
 }
 function Foundation({ title }: { title: string }) { return <div className="page"><p className="eyebrow">SONGMAP</p><h1>{title}</h1><p className="muted">言葉を捕まえて、曲へ育てるワークスペース。</p></div> }
-export function App() { return <Routes><Route element={<Shell/>}><Route index element={<Home/>}/><Route path="songs" element={<Songs/>}/><Route path="songs/new" element={<NewSong/>}/><Route path="songs/:projectId" element={<Workspace/>}/><Route path="inbox" element={<Foundation title="Inbox"/>}/><Route path="settings" element={<Foundation title="設定"/>}/><Route path="*" element={<div className="page"><h1>ページが見つかりません</h1><Link to="/">ホームへ戻る</Link></div>}/></Route></Routes> }
+export function App() { return <Routes><Route element={<Shell/>}><Route index element={<Home/>}/><Route path="songs" element={<Songs/>}/><Route path="songs/new" element={<NewSong/>}/><Route path="songs/:projectId" element={<Suspense fallback={<div className="page skeleton" aria-label="読み込み中"/>}><Workspace/></Suspense>}/><Route path="inbox" element={<Foundation title="Inbox"/>}/><Route path="settings" element={<Foundation title="設定"/>}/><Route path="*" element={<div className="page"><h1>ページが見つかりません</h1><Link to="/">ホームへ戻る</Link></div>}/></Route></Routes> }
