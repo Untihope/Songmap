@@ -40,3 +40,9 @@
 - 検証: lint / typecheck / test（14件）/ build成功。Desktop / Phone E2E 10件成功。
 - 修正: 非表示Nodeのpointer interception。Capture→Inbox→Fragment→Lyricsの全経路を確認。
 - 残課題: Mobile専用List/Bottom Navigation/long press（Phase F）。
+
+## Phase F — Mobile
+- 専用Bottom Navigation、Listの検索/type/tag/status、Source復帰、固定Bottom Sheet。
+- touch pan/pinch、長押し、Quick Add、横向きMap+Lyrics、safe-area/dvh対応。
+- 検証: lint / typecheck / test（14件）/ build成功。Desktop / Phone E2E 12件、横向き844×390確認。Mobileスクリーンショット目視確認。
+- 残課題: iOS Safari / Android Chromeの実機タッチ検証（エミュレーションのみ）。

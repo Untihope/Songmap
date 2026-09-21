@@ -19,3 +19,25 @@
 @media(max-width:640px){.workspace .writing-panel{display:none;height:100%;overflow:auto;border:0}.workspace.view-lyrics .writing-panel,.workspace.view-fragments .writing-panel{display:block}.workspace.view-lyrics .fragment-box{display:none}.workspace.view-fragments .lyrics-panel{display:none}.workspace.view-fragments .map-area{display:block;position:absolute;inset:0;visibility:hidden;pointer-events:none}.workspace.view-fragments .fragment-box{border:0}.line-more{opacity:1}.capture-form{padding:18px}.capture-form small{max-width:190px}.fragment-item>textarea{font-size:16px}.fragment-item button{min-height:40px}.global-capture{font-size:22px;min-width:40px}}
 
 @media(max-width:640px){.workspace.view-fragments .map-area *,.workspace.view-lyrics .map-area *{visibility:hidden!important;pointer-events:none!important}.workspace .writing-panel{position:relative;z-index:1}}
+
+.node-list{display:none;overflow:auto;padding:26px;background:var(--canvas)}.node-list h2{font-size:22px}.node-list-items{display:grid;gap:0;margin-top:20px}.node-list-items>button{padding:18px 0;display:grid;justify-content:stretch;text-align:left;gap:8px;background:none;border:0;border-radius:0;border-bottom:1px solid var(--border)}.node-list-items span{line-height:1.7}.node-list-items small{font-size:11px}.view-list .node-list{display:block;grid-column:2}.view-list .map-area{visibility:hidden;position:absolute;left:200px;right:300px;top:0;bottom:0}.view-list .map-area *{visibility:hidden!important;pointer-events:none!important}.workspace-capture{display:none}
+@media(max-width:640px){
+ .app-header.in-workspace,.mobile-nav.in-workspace{display:none}
+ .workspace-bar{height:92px;position:relative;align-content:center;padding:10px 14px;gap:8px;background:var(--panel)}
+ .workspace-bar>input{width:calc(100% - 108px);padding:5px;font-size:16px}
+ .workspace-bar>span{width:100%;font-size:10px;margin-top:0;text-align:right}
+ .workspace-capture{display:inline-flex;min-width:32px;min-height:32px;padding:3px}
+ .workspace-bar .workspace-tabs{position:fixed;bottom:0;left:0;right:0;z-index:30;height:calc(66px + env(safe-area-inset-bottom));padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--border);display:flex;justify-content:space-around;gap:0;margin:0;flex-wrap:nowrap}
+ .workspace-tabs button{font-size:10px;letter-spacing:.07em;min-height:44px;padding:6px 10px;border:0;background:none}
+ .workspace-body{height:calc(100dvh - 158px - env(safe-area-inset-bottom));min-height:260px}
+ .workspace .node-list{height:100%;position:relative;z-index:1}
+ .view-list .map-area{left:0;right:0;inset:0}
+ .view-list .writing-panel{display:none}
+ .node-editor.floating-editor{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));left:8px;right:8px;max-height:calc(100dvh - 100px);z-index:40}
+ .node-editor.floating-editor::before{content:'';display:block;width:34px;height:4px;background:var(--border);border-radius:3px;margin:-6px auto 15px}
+ .node-actions{bottom:76px}.quick-add{bottom:22px}.react-flow__controls{left:8px}
+ .view-map .workspace-tabs button:nth-child(1),.view-lyrics .workspace-tabs button:nth-child(2),.view-fragments .workspace-tabs button:nth-child(3),.view-list .workspace-tabs button:nth-child(4){color:var(--accent);background:var(--accent-soft)}
+}
+@media(max-width:1000px) and (max-height:500px) and (orientation:landscape){
+ .app-header.in-workspace,.mobile-nav.in-workspace{display:none}.workspace-bar{height:60px;padding:6px 12px}.workspace-bar>input{width:200px}.workspace-tabs{margin-left:auto}.workspace-bar>span{display:none}.workspace-body,.view-lyrics .workspace-body{display:grid;height:calc(100dvh - 60px);min-height:0;grid-template-columns:minmax(0,1fr) 40%}.workspace-body>.project-sidebar{display:none}.workspace .map-area{position:relative;visibility:visible;inset:auto}.workspace .writing-panel{display:block}.workspace .lyrics-panel{display:block}.react-flow__minimap{display:none}.workspace .fragment-box{display:none}.view-list .node-list{grid-column:1}.view-list .map-area{display:none}.floating-editor{max-height:80dvh;top:10px}
+}

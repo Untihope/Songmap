@@ -1,6 +1,6 @@
 import { nodeToFragment } from '../../domain/fragment/service'
 import { sendToLyrics } from '../../domain/lyrics/service'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ReactFlow, ReactFlowProvider, Background, Controls, MiniMap, Handle, Position, useReactFlow, type NodeProps, type NodeChange } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -21,6 +21,7 @@ function MapContent({ projectId }: { projectId:string }) {
   const edges = useLiveQuery(() => db.records('edges').where('projectId').equals(projectId).toArray(),[projectId])
   const tags = useLiveQuery(() => db.records('tags').where('projectId').equals(projectId).toArray(),[projectId])
   const { selected, editor, focus, filterType, filterTags, filterStatus, search, revealNode, revealToken, select } = useWorkspace()
+  const longPress=useRef<ReturnType<typeof setTimeout>|undefined>(undefined);const touchStart=useRef({x:0,y:0})
   const flow = useReactFlow<CanvasNode>(); const [positions,setPositions] = useState<Record<string,{x:number;y:number}>>({})
   const [draft,setDraft] = useState<{x:number;y:number;parent?:string} | null>(null); const [text,setText]=useState('')
   const [edgeId,setEdgeId]=useState(''); const [connecting,setConnecting]=useState('')
@@ -43,7 +44,7 @@ function MapContent({ projectId }: { projectId:string }) {
   const add=(parent?:string)=>{const n=liveNodes.find(n=>n.id===parent);setText('');setDraft(n?{x:n.position.x+280,y:n.position.y+100,parent:n.id}:{...flow.screenToFlowPosition({x:window.innerWidth/2,y:window.innerHeight/2})})}
   const remove=()=>run(repository.atomic(async()=>{for(const id of selected) await repository.remove('nodes',id)}).then(()=>select([])),'削除しました')
   const chosen=liveNodes.find(n=>n.id===selected[0]); const edited=liveNodes.find(n=>n.id===editor); const edge=liveEdges.find(e=>e.id===edgeId)
-  return <div className="map-area" tabIndex={0} aria-label="Mind Map" onKeyDown={e=>{
+  return <div className="map-area" tabIndex={0} aria-label="Mind Map" onPointerDownCapture={e=>{if(e.pointerType!=='touch')return;const x=e.clientX,y=e.clientY;touchStart.current={x,y};const id=(e.target as HTMLElement).closest('.react-flow__node')?.getAttribute('data-id');longPress.current=setTimeout(()=>{if(id){select([id]);useWorkspace.setState({editor:id})}else if((e.target as HTMLElement).closest('.react-flow__pane')){setText('');setDraft(flow.screenToFlowPosition({x,y}))}},550)}} onPointerMoveCapture={e=>{if(Math.hypot(e.clientX-touchStart.current.x,e.clientY-touchStart.current.y)>10)clearTimeout(longPress.current)}} onPointerUpCapture={()=>clearTimeout(longPress.current)} onPointerCancelCapture={()=>clearTimeout(longPress.current)} onContextMenu={e=>e.preventDefault()} onKeyDown={e=>{
     if((e.target as HTMLElement).closest('input,textarea,select,[contenteditable=true]')) return
     if(e.key==='Escape'){select([]);setDraft(null);useWorkspace.setState({editor:''});setEdgeId('');setConnecting('')}
     if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();remove()}
@@ -54,7 +55,7 @@ function MapContent({ projectId }: { projectId:string }) {
     if((e.ctrlKey||e.metaKey)&&e.key==='d'&&chosen){e.preventDefault();run(repository.put('nodes',{...chosen,...newMeta(),position:{x:chosen.position.x+40,y:chosen.position.y+70}}))}
   }}>
     <ReactFlow<CanvasNode> nodes={canvasNodes} edges={canvasEdges} nodeTypes={types} onNodesChange={onNodesChange} fitView fitViewOptions={{padding:.4}} minZoom={.15} maxZoom={2.5}
-      panOnScroll zoomOnScroll={false} zoomActivationKeyCode={['Meta','Control']} panActivationKeyCode="Space" selectionKeyCode="Shift" multiSelectionKeyCode="Shift" deleteKeyCode={null}
+      zoomOnPinch panOnDrag panOnScroll zoomOnScroll={false} zoomActivationKeyCode={['Meta','Control']} panActivationKeyCode="Space" selectionKeyCode="Shift" multiSelectionKeyCode="Shift" deleteKeyCode={null}
       onConnect={c=>run(connect(projectId,c.source,c.target))}
       onNodeClick={(e,n)=>{if(connecting){run(connect(projectId,connecting,n.id),'接続しました');setConnecting('')}else if(!e.shiftKey)select([n.id])}}
       onNodeDoubleClick={(_,n)=>useWorkspace.setState({editor:n.id})}
