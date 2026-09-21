@@ -1,0 +1,16 @@
+import { useEffect } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db } from '../../data/local/database'
+import { repository } from '../../data/repositories/localRepository'
+import { BufferedInput } from '../../components/BufferedInput'
+import { run } from '../../state/ui'
+export function Workspace() {
+  const { projectId = '' } = useParams()
+  const result = useLiveQuery(async () => ({ project: await db.records('projects').get(projectId) }), [projectId])
+  useEffect(() => { run(repository.patch('projects', projectId, { lastOpenedAt: new Date().toISOString() })) }, [projectId])
+  if (!result) return <div className="page"><div className="skeleton" aria-label="曲を読み込み中"/></div>
+  const p = result.project
+  if (!p || p.deletedAt) return <div className="page"><h1>曲が見つかりません</h1><Link to="/songs">曲一覧へ</Link></div>
+  return <div className="workspace"><div className="workspace-bar"><Link to="/songs">← 曲</Link><BufferedInput value={p.title} label="曲のタイトル" onSave={title => repository.patch('projects', p.id, { title: title.trim() || p.title })}/><span className="muted">この端末に自動保存</span></div><div className="workspace-body"><aside className="project-sidebar stack"><p className="eyebrow">PROJECT</p><label>テーマ<BufferedInput value={p.theme ?? ''} label="テーマ" onSave={theme => repository.patch('projects', p.id, { theme })}/></label><label>気分<BufferedInput value={p.moods.join(', ')} label="気分" placeholder="夜, 孤独" onSave={value => repository.patch('projects', p.id, { moods: value.split(',').map(s => s.trim()).filter(Boolean) })}/></label><div className="row"><label>BPM<BufferedInput value={p.bpm?.toString() ?? ''} label="BPM" onSave={value => repository.patch('projects', p.id, { bpm: value && Number.isFinite(Number(value)) ? Number(value) : undefined })}/></label><label>Key<BufferedInput value={p.key ?? ''} label="Key" onSave={key => repository.patch('projects', p.id, { key })}/></label></div></aside><section className="foundation-canvas"><p className="eyebrow">MIND MAP</p><h1>{p.title}</h1><p className="muted">この曲の中心テーマ</p></section></div></div>
+}

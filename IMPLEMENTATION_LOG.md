@@ -13,3 +13,10 @@
 - テスト環境、永続化・rollback・revision・soft delete/restoreのテスト。
 - 検証: lint / typecheck / test（4件）/ build 成功。Edge Desktop / Phone のナビ・テーマ・横はみ出し検証2件成功。
 - 残課題: Phase B以降の機能と端末別実機検証。
+
+## Phase B — Song Core
+- Home / Continue / Songs検索・分類 / New Song・4テンプレート。曲の変更・複製・ピン・アーカイブ・削除復元。
+- テンプレート生成と複製はatomic、IDとSource参照を再割当。テキストは650ms debounceとblur時保存。
+- 検証: lint / typecheck / test（6件）/ build成功。Desktop / Phone E2E 4件成功。
+- 修正: 複製EdgeのID、モバイルメニューと通知の重なり。
+- 残課題: Canvas以降の制作操作（次Phase）。
