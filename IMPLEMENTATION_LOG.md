@@ -26,3 +26,10 @@
 - Type/Status/Tags/Favorite、Focus、filter、collapse、端末別viewport。
 - 検証: lint / typecheck / test（8件）/ build成功。Desktop / Phone E2E 6件成功。
 - 残課題: Lyricsへの受け渡し（Phase D）、専用Mobile操作（Phase F）。
+
+## Phase D — Lyrics
+- Section CRUD/collapse/duplicate/drag reorder、安定IDの行編集・Enter分割/Backspace結合。
+- Node→Lyrics（送信/drag）、送信先と位置指定、Map維持、Source→Node。
+- 検証: lint / typecheck / test（10件）/ build成功。Desktop / Phone E2E 8件成功。
+- 修正: 非表示Canvasの寸法維持、歌詞編集後の表示更新。
+- 残課題: Fragmentとの相互変換（Phase E）。
