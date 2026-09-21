@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { markDirty, markSaved } from '../state/save'
+import { useId, useCallback, useEffect, useRef, useState } from 'react'
 import { useUI } from '../state/ui'
 type Props = { value: string; onSave: (value: string) => Promise<unknown>; label: string; multiline?: boolean; className?: string; placeholder?: string }
 export function BufferedInput({ value, onSave, label, multiline, className, placeholder }: Props) {
+  const id=useId()
   const [draft, setDraft] = useState(value)
   const [failed, setFailed] = useState(false)
   const pending = useRef<string | undefined>(undefined)
@@ -14,8 +16,8 @@ export function BufferedInput({ value, onSave, label, multiline, className, plac
     const text = pending.current
     if (text === undefined) return
     pending.current = undefined
-    void save.current(text).then(() => setFailed(false)).catch(error => { pending.current = text; setFailed(true); useUI.getState().fail(error) })
-  }, [])
+    void save.current(text).then(() => {setFailed(false);if(pending.current===undefined)markSaved(id)}).catch(error => { pending.current = text; setFailed(true); useUI.getState().fail(error) })
+  }, [id])
   useEffect(() => {
     const now = () => flush()
     window.addEventListener('songmap:save', now)
@@ -23,6 +25,6 @@ export function BufferedInput({ value, onSave, label, multiline, className, plac
     document.addEventListener('visibilitychange', hide)
     return () => { now(); window.removeEventListener('songmap:save', now); document.removeEventListener('visibilitychange', hide) }
   }, [flush])
-  const props = { value: draft, 'aria-label': label, placeholder, className, onBlur: () => flush(), onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { setDraft(e.target.value); pending.current = e.target.value; clearTimeout(timer.current); timer.current = setTimeout(() => flush(), 650) } }
+  const props = { value: draft, 'aria-label': label, placeholder, className, onBlur: () => flush(), onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { markDirty(id); setDraft(e.target.value); pending.current = e.target.value; clearTimeout(timer.current); timer.current = setTimeout(() => flush(), 650) } }
   return <>{multiline ? <textarea {...props}/> : <input {...props}/>} {failed && <button onClick={() => flush()}>保存を再試行</button>}</>
 }

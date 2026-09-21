@@ -41,3 +41,8 @@
 @media(max-width:1000px) and (max-height:500px) and (orientation:landscape){
  .app-header.in-workspace,.mobile-nav.in-workspace{display:none}.workspace-bar{height:60px;padding:6px 12px}.workspace-bar>input{width:200px}.workspace-tabs{margin-left:auto}.workspace-bar>span{display:none}.workspace-body,.view-lyrics .workspace-body{display:grid;height:calc(100dvh - 60px);min-height:0;grid-template-columns:minmax(0,1fr) 40%}.workspace-body>.project-sidebar{display:none}.workspace .map-area{position:relative;visibility:visible;inset:auto}.workspace .writing-panel{display:block}.workspace .lyrics-panel{display:block}.react-flow__minimap{display:none}.workspace .fragment-box{display:none}.view-list .node-list{grid-column:1}.view-list .map-area{display:none}.floating-editor{max-height:80dvh;top:10px}
 }
+
+.settings-page{max-width:800px;display:grid;gap:24px}.settings-page h1{margin:0}.settings-page .eyebrow{margin-bottom:-12px}.trash-row>span{max-width:75%;overflow-wrap:anywhere}.export-menu{position:relative;font-size:12px}.export-menu summary{cursor:pointer;padding:8px;white-space:nowrap;list-style:none}.export-menu .section-menu{z-index:35}.history-buttons{gap:3px;flex-wrap:nowrap}.history-buttons button{min-width:30px;padding:3px 7px;min-height:32px}.toast{pointer-events:none}.toast button{pointer-events:auto}
+@media(max-width:640px){.workspace-bar{height:112px}.workspace-body{height:calc(100dvh - 178px - env(safe-area-inset-bottom))}.workspace-bar>.history-buttons{margin-left:45px}.workspace-bar>span{width:auto;margin-left:auto}.export-menu .section-menu{right:auto;left:-95px}.toast{top:auto;bottom:84px;font-size:12px;z-index:35}}
+
+.save-status{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap}.workspace-bar{flex-wrap:wrap}

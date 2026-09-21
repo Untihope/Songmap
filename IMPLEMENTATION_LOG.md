@@ -46,3 +46,10 @@
 - touch pan/pinch、長押し、Quick Add、横向きMap+Lyrics、safe-area/dvh対応。
 - 検証: lint / typecheck / test（14件）/ build成功。Desktop / Phone E2E 12件、横向き844×390確認。Mobileスクリーンショット目視確認。
 - 残課題: iOS Safari / Android Chromeの実機タッチ検証（エミュレーションのみ）。
+
+## Phase G — Safety
+- Session Undo/Redo（50 commands）、Trash、直近5 snapshotsの復旧。
+- JSON schema/参照整合検証、衝突しない新IDでatomic import、完全JSON/Markdown export。
+- 検証: lint / typecheck / test（17件）/ build成功。Desktop / Phone E2E 14件成功。
+- 保存中/保存済み/失敗/オフライン表示、未保存離脱防止、visibility change時flush。
+- 残課題: 実クラウドキュー配信（Phase H）。強制終了時の直前650ms入力は未コミットの可能性あり。

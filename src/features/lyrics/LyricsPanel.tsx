@@ -1,3 +1,4 @@
+import { markDirty, markSaved } from '../../state/save'
 import { lyricToFragment } from '../../domain/fragment/service'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -10,13 +11,13 @@ import { run, useUI } from '../../state/ui'
 import { BufferedInput } from '../../components/BufferedInput'
 function LyricInput({line}:{line:LyricsLine}){
  const [draft,setDraft]=useState<string|null>(null);const pending=useRef<string|undefined>(undefined);const timer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined)
- const flush=useCallback(()=>{clearTimeout(timer.current);const text=pending.current;if(text===undefined)return;pending.current=undefined;run(repository.patch('lyricsLines',line.id,{text}).then(()=>{if(pending.current===undefined)setDraft(null)}).catch(e=>{pending.current=text;throw e}))},[line.id])
+ const flush=useCallback(()=>{clearTimeout(timer.current);const text=pending.current;if(text===undefined)return;pending.current=undefined;run(repository.patch('lyricsLines',line.id,{text}).then(()=>{if(pending.current===undefined){setDraft(null);markSaved(line.id)}}).catch(e=>{pending.current=text;throw e}))},[line.id])
  useEffect(()=>{window.addEventListener('songmap:save',flush);return()=>{flush();window.removeEventListener('songmap:save',flush)}},[flush])
  const focus=(id:string)=>requestAnimationFrame(()=>{const input=document.querySelector<HTMLTextAreaElement>('[data-line-id="'+id+'"]');input?.focus()})
- return <div className="lyric-line"><textarea rows={1} aria-label="歌詞" data-line-id={line.id} value={draft??line.text} onChange={e=>{setDraft(e.target.value);pending.current=e.target.value;clearTimeout(timer.current);timer.current=setTimeout(flush,650)}} onBlur={flush} onKeyDown={e=>{
+ return <div className="lyric-line"><textarea rows={1} aria-label="歌詞" data-line-id={line.id} value={draft??line.text} onChange={e=>{markDirty(line.id);setDraft(e.target.value);pending.current=e.target.value;clearTimeout(timer.current);timer.current=setTimeout(flush,650)}} onBlur={flush} onKeyDown={e=>{
   if(e.nativeEvent.isComposing)return
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();clearTimeout(timer.current);pending.current=undefined;const value=e.currentTarget.value;const start=e.currentTarget.selectionStart;const end=e.currentTarget.selectionEnd;run(splitLine(line,value,start,end).then(n=>{setDraft(null);focus(n.id)}))}
-  if(e.key==='Backspace'&&e.currentTarget.selectionStart===0&&e.currentTarget.selectionEnd===0){e.preventDefault();clearTimeout(timer.current);pending.current=undefined;run(mergeLine(line,e.currentTarget.value).then(n=>{if(n)focus(n.id)}))}
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();clearTimeout(timer.current);pending.current=undefined;const value=e.currentTarget.value;const start=e.currentTarget.selectionStart;const end=e.currentTarget.selectionEnd;run(splitLine(line,value,start,end).then(n=>{setDraft(null);markSaved(line.id);focus(n.id)}))}
+  if(e.key==='Backspace'&&e.currentTarget.selectionStart===0&&e.currentTarget.selectionEnd===0){e.preventDefault();clearTimeout(timer.current);pending.current=undefined;run(mergeLine(line,e.currentTarget.value).then(n=>{markSaved(line.id);if(n)focus(n.id)}))}
  }}/><button className="line-more" aria-label="Fragmentへ戻す" onClick={()=>{flush();run(lyricToFragment(line.id),'Fragmentに戻しました')}}>⋯</button>{(line.sourceNodeIds.length>0||line.sourceFragmentIds.length>0)&&<button className="source-link" aria-label="Sourceを表示" onClick={()=>useWorkspace.setState({sourceLine:line.id})}>↗</button>}</div>
 }
 function Section({section:s}:{section:LyricsSection}){
