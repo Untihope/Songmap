@@ -53,3 +53,15 @@
 - 検証: lint / typecheck / test（17件）/ build成功。Desktop / Phone E2E 14件成功。
 - 保存中/保存済み/失敗/オフライン表示、未保存離脱防止、visibility change時flush。
 - 残課題: 実クラウドキュー配信（Phase H）。強制終了時の直前650ms入力は未コミットの可能性あり。
+
+## Phase H — PWA / Sync（進行中）
+- PWA shell/manifest/更新確認、Supabase Auth/Repository/RLS/CAS RPC、durable outbox/再送/競合。
+- 実クラウドの接続情報なし。実環境のSQL適用・2端末アカウント検証は未実施。
+
+### Phase H ローカル検証結果
+- lint / typecheck / test（20件）/ build成功。PWA precache生成。
+- Desktop / Phone E2E 14件成功。本番Service Workerで完全オフライン編集・reload保持のE2E 1件成功。
+- 閲覧時刻の変更を同期対象から除外し、閲覧だけで競合しないよう修正。
+- 追加検証: 送信中の追加入力と異なるレコードのmerge成功。最終 test 22件・E2E 14件・PWA E2E 1件、lint/typecheck/build 全成功。
+- 実Supabase接続・RLS・Auth・実2端末の検証は未完了。Phase Hを完了扱いにせず、Phase Iは未着手。
+- Phase Iに向けた仕様照合の残項目はREADMEに明記。

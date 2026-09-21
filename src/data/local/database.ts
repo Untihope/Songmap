@@ -10,6 +10,7 @@ export class SongMapDatabase extends Dexie {
       workspaceStates: 'id, projectId', syncQueue: 'id, recordId, createdAt', trash: 'id, table, recordId',
       preferences: 'id', snapshots: 'id, createdAt',
     })
+    this.version(2).stores({syncMeta:'id',conflicts:'id, recordId'})
   }
   records<K extends DomainTable>(name: K): Table<DomainTables[K], string> { return this.table(name) }
   get syncQueue(): Table<SyncEntry, string> { return this.table('syncQueue') }

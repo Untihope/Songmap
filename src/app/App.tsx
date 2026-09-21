@@ -1,3 +1,5 @@
+import { SyncProvider } from '../features/sync/SyncProvider'
+import { UpdateNotice } from '../features/pwa/UpdateNotice'
 import { useSave } from '../state/save'
 import { Settings } from '../features/safety/Safety'
 import { db } from '../data/local/database'
@@ -11,13 +13,13 @@ import { useUI } from '../state/ui'
 export function Shell() {
   const { theme, setTheme, notice, error } = useUI()
   useEffect(()=>{const hide=()=>{if(document.visibilityState==='hidden')window.dispatchEvent(new Event('songmap:save'))};const leave=(e:BeforeUnloadEvent)=>{const s=useSave.getState();if(s.pending.length||s.writes||s.error){window.dispatchEvent(new Event('songmap:save'));e.preventDefault()}};document.addEventListener('visibilitychange',hide);window.addEventListener('beforeunload',leave);return()=>{document.removeEventListener('visibilitychange',hide);window.removeEventListener('beforeunload',leave)}},[])
-  const [capturing,setCapturing]=useState(false)
+  const [capturing,setCapturing]=useState(()=>new URLSearchParams(window.location.search).has('capture'))
   const location=useLocation();const inWorkspace=/^\/songs\/(?!new$)[^/]+$/.test(location.pathname)
   useEffect(()=>{const open=()=>setCapturing(true);window.addEventListener('songmap:capture',open);return()=>window.removeEventListener('songmap:capture',open)},[])
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
   useEffect(()=>{void db.table('preferences').get('theme').then(p=>{if(p?.value==='light'||p?.value==='dark')setTheme(p.value)})},[setTheme])
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => useUI.setState({ notice: '' }), 4000); return () => clearTimeout(timer) }, [notice])
-  return <><a className="skip-link" href="#main">本文へ</a><header className={inWorkspace ? "app-header in-workspace" : "app-header"}>
+  return <><SyncProvider/><UpdateNotice/><a className="skip-link" href="#main">本文へ</a><header className={inWorkspace ? "app-header in-workspace" : "app-header"}>
     <Link className="brand" to="/"><AudioLines size={23}/>SongMap</Link><span className="tagline">言葉になる、その手前から。</span>
     <nav className="desktop-nav" aria-label="メイン"><NavLink to="/" end>ホーム</NavLink><NavLink to="/songs">曲</NavLink><NavLink to="/inbox">Inbox</NavLink></nav>
     <button className="global-capture" aria-label="Quick Captureを開く" onClick={()=>setCapturing(true)}>＋</button><button aria-label={theme === 'dark' ? 'ライトテーマ' : 'ダークテーマ'} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun size={19}/> : <Moon size={19}/>}</button>

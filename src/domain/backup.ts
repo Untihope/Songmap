@@ -64,3 +64,6 @@ export function download(text:string,name:string,type:string){
  const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement('a');a.href=url;a.download=name.replace(/[<>:"/\\|?*]/g,'_');a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)
 }
 
+
+const inbox=z.object({...meta,ownerId:z.string().optional(),text:z.string(),note:z.string().optional(),status:z.enum(['raw','converted','archived']),source:z.enum(['home','quickCapture','mobileShortcut','project']),convertedAt:z.string().optional(),convertedToType:z.enum(['node','fragment','project']).optional(),convertedToId:z.string().optional()})
+export function parseDomainRecord(table:DomainTable,input:unknown):DomainRecord{const schemas={projects:project,nodes:node,edges:edge,tags:tag,fragments:fragment,lyricsSections:section,lyricsLines:line,inboxItems:inbox,references:reference};const validator=schemas[table];if(!validator)throw new Error('不明なデータ種別');return validator.parse(input)}

@@ -17,7 +17,7 @@ export function Workspace() {
   const { projectId = '' } = useParams()
   const mobileView = useWorkspace(s=>s.mobileView)
   const result = useLiveQuery(async () => ({ project: await db.records('projects').get(projectId) }), [projectId])
-  useEffect(() => { run(repository.atomic(()=>repository.patch('projects', projectId, { lastOpenedAt: new Date().toISOString() }),false)) }, [projectId])
+  useEffect(() => { run(db.records('projects').update(projectId, { lastOpenedAt: new Date().toISOString() })) }, [projectId])
   if (!result) return <div className="page"><div className="skeleton" aria-label="曲を読み込み中"/></div>
   const p = result.project
   if (!p || p.deletedAt) return <div className="page"><h1>曲が見つかりません</h1><Link to="/songs">曲一覧へ</Link></div>
