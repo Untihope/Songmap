@@ -33,3 +33,10 @@
 - 検証: lint / typecheck / test（10件）/ build成功。Desktop / Phone E2E 8件成功。
 - 修正: 非表示Canvasの寸法維持、歌詞編集後の表示更新。
 - 残課題: Fragmentとの相互変換（Phase E）。
+
+## Phase E — Fragments / Inbox
+- Home/global Quick Capture、Inbox→Node/Fragment/New Song、Quick Add。
+- Fragment CRUD/tags/favorite/status、Node↔Fragment、Lyrics→Fragment、Fragment→LyricsとSource追跡。
+- 検証: lint / typecheck / test（14件）/ build成功。Desktop / Phone E2E 10件成功。
+- 修正: 非表示Nodeのpointer interception。Capture→Inbox→Fragment→Lyricsの全経路を確認。
+- 残課題: Mobile専用List/Bottom Navigation/long press（Phase F）。

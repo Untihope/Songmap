@@ -1,3 +1,4 @@
+import { QuickCapture } from '../inbox/Inbox'
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate } from 'react-router-dom'
@@ -23,7 +24,7 @@ export function Home() {
   const live = projects?.filter(p => isLive(p) && !p.archived).sort((a,b) => (b.lastOpenedAt ?? b.updatedAt).localeCompare(a.lastOpenedAt ?? a.updatedAt))
   return <div className="page home"><div className="row between"><div><p className="eyebrow">YOUR WRITING ROOM</p><h1>制作のつづきへ</h1><p className="muted">浮かんだ言葉を、あなたの曲に。</p></div><Link className="button primary" to="/songs/new"><Plus size={17}/>新しい曲</Link></div>
     <section className="home-section"><p className="eyebrow">CONTINUE</p>{!projects ? <div className="skeleton" aria-label="読み込み中"/> : live?.[0] ? <Link className="continue-panel" to={'/songs/' + live[0].id}><span><small>最後に開いた曲</small><h2>{live[0].title}</h2><p className="muted">{live[0].moods.join(' · ') || '言葉の続きを書く'}</p></span><ArrowUpRight size={28}/></Link> : <div className="empty"><Music2 size={28}/><h2>最初の一曲を、ここから。</h2><p>タイトルは後から。空白からでも始められます。</p><Link className="button" to="/songs/new">曲をつくる</Link></div>}</section>
-    <section className="home-section"><div className="row between"><p className="eyebrow">SONGS</p><Link to="/songs">すべての曲 →</Link></div><div className="song-grid">{live?.slice(0,6).map(p => <SongCard key={p.id} project={p}/>)}</div></section></div>
+    <section className="home-section"><p className="eyebrow">QUICK CAPTURE</p><QuickCapture/></section><section className="home-section"><div className="row between"><p className="eyebrow">SONGS</p><Link to="/songs">すべての曲 →</Link></div><div className="song-grid">{live?.slice(0,6).map(p => <SongCard key={p.id} project={p}/>)}</div></section></div>
 }
 export function Songs() {
   const projects = useLiveQuery(() => db.records('projects').toArray())

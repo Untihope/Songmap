@@ -1,0 +1,17 @@
+import {test,expect} from '@playwright/test'
+test('quick capture → inbox → fragment → chorus with source',async({page})=>{
+ await page.goto('/songs/new');await page.getByLabel('タイトル',{exact:true}).fill('夜の曲');await page.getByRole('button',{name:'作成する'}).click()
+ await expect(page.getByLabel('曲のタイトル')).toHaveValue('夜の曲');const url=page.url();await page.goto('/')
+ await page.getByLabel('Quick Capture',{exact:true}).fill('冷めたコーヒー')
+ await page.getByLabel('Quick Capture',{exact:true}).press('Enter');await expect(page.getByRole('status')).toContainText('Inboxに保存しました')
+ await page.goto('/inbox');await expect(page.getByLabel('アイデア',{exact:true})).toHaveValue('冷めたコーヒー')
+ await page.getByRole('button',{name:'曲へ移す',exact:true}).click();await page.getByLabel('移動先の曲').selectOption({label:'夜の曲'})
+ await page.getByRole('button',{name:'Fragmentにする',exact:true}).click()
+ await expect(page.getByLabel('アイデア',{exact:true})).toHaveCount(0)
+ await page.goto(url);await page.getByRole('button',{name:'FRAGMENTS',exact:true}).click()
+ await expect(page.getByLabel('Fragment',{exact:true})).toHaveValue('冷めたコーヒー')
+ await page.getByRole('button',{name:'歌詞へ',exact:true}).click();await page.getByRole('button',{name:'追加する',exact:true}).click()
+ await page.getByRole('button',{name:'LYRICS',exact:true}).click()
+ await expect(page.getByLabel('歌詞',{exact:true})).toHaveValue('冷めたコーヒー')
+ await page.getByLabel('Sourceを表示').click();await expect(page.getByRole('dialog',{name:'Source',exact:true})).toContainText('冷めたコーヒー')
+})

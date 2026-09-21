@@ -1,3 +1,4 @@
+import { lyricToFragment } from '../../domain/fragment/service'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../../data/local/database'
@@ -16,7 +17,7 @@ function LyricInput({line}:{line:LyricsLine}){
   if(e.nativeEvent.isComposing)return
   if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();clearTimeout(timer.current);pending.current=undefined;const value=e.currentTarget.value;const start=e.currentTarget.selectionStart;const end=e.currentTarget.selectionEnd;run(splitLine(line,value,start,end).then(n=>{setDraft(null);focus(n.id)}))}
   if(e.key==='Backspace'&&e.currentTarget.selectionStart===0&&e.currentTarget.selectionEnd===0){e.preventDefault();clearTimeout(timer.current);pending.current=undefined;run(mergeLine(line,e.currentTarget.value).then(n=>{if(n)focus(n.id)}))}
- }}/>{(line.sourceNodeIds.length>0||line.sourceFragmentIds.length>0)&&<button className="source-link" aria-label="Sourceを表示" onClick={()=>useWorkspace.setState({sourceLine:line.id})}>↗</button>}</div>
+ }}/><button className="line-more" aria-label="Fragmentへ戻す" onClick={()=>{flush();run(lyricToFragment(line.id),'Fragmentに戻しました')}}>⋯</button>{(line.sourceNodeIds.length>0||line.sourceFragmentIds.length>0)&&<button className="source-link" aria-label="Sourceを表示" onClick={()=>useWorkspace.setState({sourceLine:line.id})}>↗</button>}</div>
 }
 function Section({section:s}:{section:LyricsSection}){
  const lines=useLiveQuery(async()=>(await db.records('lyricsLines').where('sectionId').equals(s.id).toArray()).filter(isLive).sort((a,b)=>a.order-b.order),[s.id])
@@ -41,5 +42,5 @@ export function SourceSheet(){
  const {sourceLine}=useWorkspace()
  const sources=useLiveQuery(async()=>{const l=await db.records('lyricsLines').get(sourceLine);if(!l)return null;return {nodes:await db.records('nodes').bulkGet(l.sourceNodeIds),fragments:await db.records('fragments').bulkGet(l.sourceFragmentIds)}},[sourceLine])
  if(!sourceLine)return null
- return <div className="sheet-backdrop" onClick={()=>useWorkspace.setState({sourceLine:''})}><section className="send-sheet stack" role="dialog" aria-modal="true" aria-label="Source" onClick={e=>e.stopPropagation()}><div className="row between"><h2>この言葉の生まれた場所</h2><button autoFocus aria-label="Sourceを閉じる" onClick={()=>useWorkspace.setState({sourceLine:''})}>×</button></div>{sources?.nodes.map((n,i)=>n?<button key={n.id} onClick={()=>{if(n.deletedAt){useUI.getState().notify('元ノードはゴミ箱にあります');return}useWorkspace.getState().reveal(n.id);useWorkspace.setState({sourceLine:''})}}>↗ {n.text}{n.deletedAt?'（削除済み）':''}</button>:<p key={i}>元ノードが見つかりません</p>)}{sources?.fragments.map((f,i)=><p key={f?.id??i}>{f?.text??'元Fragmentが見つかりません'}</p>)}</section></div>
+ return <div className="sheet-backdrop" onClick={()=>useWorkspace.setState({sourceLine:''})}><section className="send-sheet stack" role="dialog" aria-modal="true" aria-label="Source" onClick={e=>e.stopPropagation()}><div className="row between"><h2>この言葉の生まれた場所</h2><button autoFocus aria-label="Sourceを閉じる" onClick={()=>useWorkspace.setState({sourceLine:''})}>×</button></div>{sources?.nodes.map((n,i)=>n?<button key={n.id} onClick={()=>{if(n.deletedAt){useUI.getState().notify('元ノードはゴミ箱にあります');return}useWorkspace.getState().reveal(n.id);useWorkspace.setState({sourceLine:''})}}>↗ {n.text}{n.deletedAt?'（削除済み）':''}</button>:<p key={i}>元ノードが見つかりません</p>)}{sources?.fragments.map((f,i)=>f?<button key={f.id} onClick={()=>{useWorkspace.setState({mobileView:'fragments',sourceLine:''});requestAnimationFrame(()=>document.getElementById('fragment-'+f.id)?.scrollIntoView({block:'center'}))}}>↗ {f.text}</button>:<p key={i}>元Fragmentが見つかりません</p>)}</section></div>
 }
