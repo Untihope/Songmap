@@ -1,0 +1,2 @@
+:root { color-scheme: dark; --canvas:#111318; --panel:#171a21; --raised:#1e222b; --text:#edf0f7; --muted:#a0a8bb; --border:#303541; --accent:#aaa0ff; --accent-soft:#29263d; --danger:#ffaaaa; --radius:10px; font-family:Inter,"Noto Sans JP",system-ui,sans-serif; color:var(--text); background:var(--canvas); font-synthesis:none; }
+:root[data-theme=light] { color-scheme:light; --canvas:#f5f4f8; --panel:#fff; --raised:#eeedf4; --text:#242332; --muted:#626174; --border:#d9d7e2; --accent:#6250b8; --accent-soft:#e9e4fb; --danger:#a32838; }
