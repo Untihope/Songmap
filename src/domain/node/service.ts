@@ -13,6 +13,30 @@ export async function addNode(projectId: string, text: string, position = { x:0,
     return n
   })
 }
+type NodeSize = { width: number; height: number }
+const estimatedSize = (node: Pick<SongNode, 'text' | 'width' | 'tagIds'>): NodeSize => ({
+  width: node.width ?? 210,
+  height: Math.max(110, 65 + node.text.split('\n').reduce((lines, text) => lines + Math.max(1, Math.ceil(text.length / 12)), 0) * 26 + (node.tagIds.length ? 28 : 0)),
+})
+/** Allocate against the latest records inside the same transaction as creation. */
+export async function addChildNode(projectId: string, text: string, parentId: string, sizes: Record<string, NodeSize> = {}, repo: LocalRepository = repository) {
+  return repo.atomic(async () => {
+    const nodes = (await repo.database.records('nodes').where('projectId').equals(projectId).toArray()).filter(isLive)
+    const parent = nodes.find(n => n.id === parentId)
+    if (!parent) throw new Error('親ノードが見つかりません')
+    const parentSize = sizes[parent.id] ?? estimatedSize(parent)
+    const size = estimatedSize({ text, tagIds: [] })
+    const x = parent.position.x + parentSize.width + 90
+    const gap = 40
+    const obstacles = nodes.map(n => ({ ...n.position, ...(sizes[n.id] ?? estimatedSize(n)) }))
+      .filter(n => x < n.x + n.width + gap && x + size.width + gap > n.x)
+    const candidates = [parent.position.y, ...obstacles.flatMap(n => [n.y + n.height + gap, n.y - size.height - gap])]
+      .sort((a, b) => Math.abs(a - parent.position.y) - Math.abs(b - parent.position.y) || b - a)
+    const y = candidates.find(y => obstacles.every(n => y + size.height + gap <= n.y || y >= n.y + n.height + gap))!
+    if (parent.collapsed) await repo.patch('nodes', parent.id, { collapsed: false })
+    return addNode(projectId, text, { x, y }, parent.id, repo)
+  })
+}
 export async function connect(projectId: string, source: string, target: string, repo: LocalRepository = repository) {
   return repo.atomic(async () => {
     if (source === target) throw new Error('別のノードを選んでください')

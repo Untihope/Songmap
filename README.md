@@ -135,6 +135,8 @@ PWAはlocalhostまたはHTTPSで使用してください。
 
 曲内の「検索」または Ctrl/Cmd+F で、Node・Fragment・Lyrics・Tagをまとめて検索できます。検索結果やSourceからNodeへ戻ると、必要な枝を開いて表示します。以降のテキスト編集で勝手に表示位置を移動しません。
 
+マップ下部の＋／−とスライダーで15〜250%に拡大縮小できます。倍率の保存がない曲は85%以下で全体を表示します。見失ったときは「全体表示」またはFキーで戻れます。＋子・Tabと親のあるShift+Enterでは、既存ノードを避けて新しい枝を配置します。以前のノードや手動配置は移動・削除しません。
+
 「表示」でCanvas / Focus / Lyrics / Zenを切り替えます。Desktopではパネルの開閉と幅を調整でき、Phone / Tablet / Desktop別に保存します。閉じたパネルも「表示」から再び開けます。MobileのSectionメニューには「上へ」「下へ」があります。
 
 | 操作 | キー |
@@ -150,7 +152,7 @@ PWAはlocalhostまたはHTTPSで使用してください。
 
 モーダル内でTabが循環し、閉じると元の操作位置へ戻ります。保存中の追加入力を直列化し、失敗後は最新の入力を再試行できます。書き出しと歌詞への送信は、編集中の保存完了を待ってから行います。
 
-最終検証: lint / typecheck / unit・integration 26件 / build成功。Desktop・Phone E2E 19件成功（Desktop専用マウス計測のPhone実行1件は対象外）、production PWA offline E2E 1件成功。200 Node / 199 Edgeで実ドラッグ、drag-end保存、Lyricsへのドロップ、位置とSourceの保持を検証しています。
+最終検証: lint / typecheck / unit・integration 28件 / build成功。Desktop・Phone E2E 23件成功（Desktop専用マウス計測のPhone実行1件は対象外）、production PWA offline E2E 1件成功。200 Node / 199 Edgeで実ドラッグ、drag-end保存、Lyricsへのドロップ、位置とSourceの保持を検証しています。
 
 ## 残課題と制限
 

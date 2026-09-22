@@ -68,3 +68,17 @@ button,a,summary{transition:background-color 160ms ease,border-color 160ms ease,
  .workspace-tabs{position:static!important;height:auto!important;width:auto!important;padding:0!important}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Zoom controls remain available independently of canvas pan/zoom. */
+.map-zoom-controls{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;width:440px;max-width:calc(100% - 24px);padding:6px;background:var(--panel);border:1px solid var(--border);border-radius:10px;z-index:5}
+.map-zoom-controls input{flex:1;width:90px;min-width:30px;padding:0;accent-color:var(--accent)}
+.map-zoom-controls button{flex-shrink:0;min-width:36px;min-height:36px;padding:6px 9px;font-size:12px}
+.map-zoom-controls output{width:40px;text-align:right;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.map-area .quick-add{bottom:78px}
+.map-area .react-flow__minimap{bottom:76px;width:140px;height:90px}
+@media(max-width:640px){
+ .map-zoom-controls button{min-width:44px;min-height:44px}
+ .map-zoom-controls input{min-height:44px}
+ .map-area .node-actions{bottom:136px}
+ .map-area .quick-add{bottom:82px}
+}
