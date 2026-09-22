@@ -1,7 +1,8 @@
-import { SyncProvider } from '../features/sync/SyncProvider'
+import { Dialog } from '../components/Dialog'
+const SyncProvider = lazy(() => import('../features/sync/SyncProvider').then(m => ({ default: m.SyncProvider })))
 import { UpdateNotice } from '../features/pwa/UpdateNotice'
 import { useSave } from '../state/save'
-import { Settings } from '../features/safety/Safety'
+const Settings = lazy(() => import('../features/safety/Safety').then(m => ({ default: m.Settings })))
 import { db } from '../data/local/database'
 import { Inbox, QuickCapture } from '../features/inbox/Inbox'
 import { Home, Songs, NewSong } from '../features/songs/Songs'
@@ -19,14 +20,14 @@ export function Shell() {
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
   useEffect(()=>{void db.table('preferences').get('theme').then(p=>{if(p?.value==='light'||p?.value==='dark')setTheme(p.value)})},[setTheme])
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => useUI.setState({ notice: '' }), 4000); return () => clearTimeout(timer) }, [notice])
-  return <><SyncProvider/><UpdateNotice/><a className="skip-link" href="#main">本文へ</a><header className={inWorkspace ? "app-header in-workspace" : "app-header"}>
+  return <><Suspense fallback={null}><SyncProvider/></Suspense><UpdateNotice/><a className="skip-link" href="#main">本文へ</a><header className={inWorkspace ? "app-header in-workspace" : "app-header"}>
     <Link className="brand" to="/"><AudioLines size={23}/>SongMap</Link><span className="tagline">言葉になる、その手前から。</span>
     <nav className="desktop-nav" aria-label="メイン"><NavLink to="/" end>ホーム</NavLink><NavLink to="/songs">曲</NavLink><NavLink to="/inbox">Inbox</NavLink></nav>
-    <button className="global-capture" aria-label="Quick Captureを開く" onClick={()=>setCapturing(true)}>＋</button><button aria-label={theme === 'dark' ? 'ライトテーマ' : 'ダークテーマ'} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? <Sun size={19}/> : <Moon size={19}/>}</button>
+    <button className="global-capture" aria-label="Quick Captureを開く" onClick={()=>setCapturing(true)}>＋</button><button aria-label={theme === 'dark' ? 'ライトテーマ' : 'ダークテーマ'} onClick={() => {const next=theme === 'dark' ? 'light' : 'dark';setTheme(next);void db.table('preferences').put({id:'theme',value:next}).catch(useUI.getState().fail)}}>{theme === 'dark' ? <Sun size={19}/> : <Moon size={19}/>}</button>
     <Link className="icon-button" aria-label="設定" to="/settings"><SettingsIcon size={19}/></Link>
   </header><main id="main"><Outlet/></main>
   <nav className={inWorkspace ? "mobile-nav in-workspace" : "mobile-nav"} aria-label="モバイルメイン"><NavLink to="/" end>Home</NavLink><NavLink to="/inbox">Inbox</NavLink><NavLink to="/songs">Songs</NavLink></nav>
-  {capturing&&<div className="sheet-backdrop" onClick={()=>setCapturing(false)}><section className="send-sheet" role="dialog" aria-modal="true" aria-label="Quick Capture" onClick={e=>e.stopPropagation()}><div className="row between"><h2>思いつきを逃さない</h2><button aria-label="Captureを閉じる" onClick={()=>setCapturing(false)}>×</button></div><QuickCapture source="quickCapture" autoFocus onDone={()=>setCapturing(false)}/></section></div>}
+  {capturing&&<Dialog label="Quick Capture" onClose={()=>setCapturing(false)}><div className="row between"><h2>思いつきを逃さない</h2><button aria-label="Captureを閉じる" onClick={()=>setCapturing(false)}>×</button></div><QuickCapture source="quickCapture" autoFocus onDone={()=>setCapturing(false)}/></Dialog>}
   {(notice || error) && <div className={`toast ${error ? 'error' : ''}`} role={error ? 'alert' : 'status'}>{error || notice}<button aria-label="通知を閉じる" onClick={() => useUI.setState({ notice: '', error: '' })}>×</button></div>}</>
 }
-export function App() { return <Routes><Route element={<Shell/>}><Route index element={<Home/>}/><Route path="songs" element={<Songs/>}/><Route path="songs/new" element={<NewSong/>}/><Route path="songs/:projectId" element={<Suspense fallback={<div className="page skeleton" aria-label="読み込み中"/>}><Workspace/></Suspense>}/><Route path="inbox" element={<Inbox/>}/><Route path="settings" element={<Settings/>}/><Route path="*" element={<div className="page"><h1>ページが見つかりません</h1><Link to="/">ホームへ戻る</Link></div>}/></Route></Routes> }
+export function App() { return <Routes><Route element={<Shell/>}><Route index element={<Home/>}/><Route path="songs" element={<Songs/>}/><Route path="songs/new" element={<NewSong/>}/><Route path="songs/:projectId" element={<Suspense fallback={<div className="page skeleton" aria-label="読み込み中"/>}><Workspace/></Suspense>}/><Route path="inbox" element={<Inbox/>}/><Route path="settings" element={<Suspense fallback={<div className="page skeleton" role="status" aria-label="設定を読み込み中"/>}><Settings/></Suspense>}/><Route path="*" element={<div className="page"><h1>ページが見つかりません</h1><Link to="/">ホームへ戻る</Link></div>}/></Route></Routes> }

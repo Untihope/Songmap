@@ -7,7 +7,7 @@
 
 ## 現在の状態
 
-Phase A〜G の実装と検証を実施。Phase H はローカル検証まで実施し、**実 Supabase 接続と実アカウントでの2端末検証が未完了**です。順序を守り Phase I は未着手。V1完成とは扱いません。
+Phase A〜I の実装とローカル検証を実施。Phase H のアカウント作成・PC/スマホ同期はユーザーによる動作確認済みです。Cloudflare Pagesの公開・Supabaseのリダイレクト設定後、Phase Iの仕上げを実施しました。V1全体の残項目と実機検証の範囲は末尾に記載しています。
 
 - Quick Capture / Inbox変換 / Quick Add
 - Node / Edge / Tags / Favorite / Focus / List
@@ -16,6 +16,9 @@ Phase A〜G の実装と検証を実施。Phase H はローカル検証まで実
 - Markdown・JSON書き出し / JSON新規取込み
 - Desktop、Phone Portrait、Phone Landscape、Tablet向け表示
 - PWAオフラインshell / Auth・同期adapter・競合処理の実装
+- 曲内のNode / Fragment / Lyrics / Tag横断検索、Source復帰時の枝展開
+- Canvas / Focus / Lyrics / Zen、Desktopパネル幅・開閉の端末別保存
+- キーボード・モーダルのフォーカス制御、Mobile Section並べ替え、reduced-motion対応
 
 ## セットアップ
 
@@ -75,11 +78,15 @@ VITE_SUPABASE_ANON_KEY=YOUR-PUBLISHABLE-OR-ANON-KEY
 
 参照: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)、[Vite PWA](https://vite-pwa-org.netlify.app/guide/)
 
-### 実クラウド受入確認（未実施）
+### 実クラウド受入確認
+
+ユーザーからアカウント作成とPC⇄スマホ同期の成功報告あり。公開先は [Cloudflare Pages](https://songmap-7f1.pages.dev)。Phase Iの変更はローカルで検証済みで、公開版への再デプロイは別途必要です。
+
+以下は詳細な実環境受入として残しています。
 
 - SQL適用後、未ログインでテーブルを読めないこと。
 - 2つの別アカウントで相手の行を読めず、RPCでも相手のデータを変更できないこと。
-- 同じアカウントのPCで曲作成 → スマホで取得 → スマホで歌詞編集 → PCで取得。
+- 公開版での携帯回線・PC間の一連の制作フローを再確認。
 - スマホをオフラインにして編集・再起動 → 復帰後の送信。
 - 両端末が同じNodeをオフライン編集 → 競合表示 → 両方保持。
 - 実iOS Safari / Android ChromeでPWAインストールとタッチ操作。
@@ -94,7 +101,7 @@ Domainの正本はIndexedDBで、LocalStorageを主要保存先にしません�
 強制終了直前の未コミット入力（最大約650ms）は保護しきれません。保存済みの未同期データは再起動後もキューに残ります。
 
 Undo/Redoはセッション内最大50コマンド。主要データはsoft deleteでTrashから復元。
-保存前の直近5回のDBスナップショットを保持し、設定から復旧できます。復旧は既存レコードを戻し、後から追加されたデータは残します。Undo可能です。
+編集時に最大30秒に1回、保存前のDBチェックポイントを作成し、直近5件を保持します。通常の保存は変更したレコードだけで履歴を記録し、毎回の全件読み取りを避けます。設定から復旧できます。復旧は既存レコードを戻し、後から追加されたデータは残します。Undo可能です。
 ブラウザのサイトデータ削除はローカルデータを消すため、JSONバックアップを利用してください。
 
 ## Export / Import
@@ -124,15 +131,33 @@ PWAはlocalhostまたはHTTPSで使用してください。
 - `src/tests`, `e2e`, `pwa-tests`: テスト
 - `supabase`: SQL migration
 
+## 操作の仕上げ
+
+曲内の「検索」または Ctrl/Cmd+F で、Node・Fragment・Lyrics・Tagをまとめて検索できます。検索結果やSourceからNodeへ戻ると、必要な枝を開いて表示します。以降のテキスト編集で勝手に表示位置を移動しません。
+
+「表示」でCanvas / Focus / Lyrics / Zenを切り替えます。Desktopではパネルの開閉と幅を調整でき、Phone / Tablet / Desktop別に保存します。閉じたパネルも「表示」から再び開けます。MobileのSectionメニューには「上へ」「下へ」があります。
+
+| 操作 | キー |
+| --- | --- |
+| 保存 | Ctrl/Cmd+S |
+| Undo / Redo | Ctrl/Cmd+Z / Ctrl/Cmd+Shift+Z（入力欄ではブラウザ標準） |
+| Node編集・操作 | Enter / / |
+| 子 / 兄弟Node | Tab / Shift+Enter（MapまたはNodeにフォーカス時） |
+| Node複製 | Ctrl/Cmd+D |
+| Node削除 | Delete / Backspace（入力欄やボタン以外） |
+| 全体表示 / パン | F / Space+ドラッグ |
+| キャンセル・閉じる | Escape |
+
+モーダル内でTabが循環し、閉じると元の操作位置へ戻ります。保存中の追加入力を直列化し、失敗後は最新の入力を再試行できます。書き出しと歌詞への送信は、編集中の保存完了を待ってから行います。
+
+最終検証: lint / typecheck / unit・integration 26件 / build成功。Desktop・Phone E2E 19件成功（Desktop専用マウス計測のPhone実行1件は対象外）、production PWA offline E2E 1件成功。200 Node / 199 Edgeで実ドラッグ、drag-end保存、Lyricsへのドロップ、位置とSourceの保持を検証しています。
+
 ## 残課題と制限
 
-- **Phase H:** 実クラウドのSQL/RLS/AuthとPC⇄スマホの受入検証。接続情報未設定。
-- **Phase I:** アクセシビリティ監査、全キーボード操作・検索の仕上げ、パネルresize/close/reopen・Zen、200 Node性能測定、アニメーション・全状態の仕上げ。
-- デスクトップのNode→Lyricsドラッグは実装済みですが、継続的なdrop guideと詳細なブラウザ検証を追加予定。
-- Section並べ替えはDesktopのドラッグ操作。Mobile向け並べ替え補助は残課題。
-- Desktop Source追跡・二方向の導出表示は実装。曲カードのTag検索、Inbox Favorite、保存テンプレートの扱いは仕様との最終照合対象。
+- Phase Iの公開版への再デプロイと、公開後のPC/スマホでの最終確認は未実施。
+- 実Supabaseでの別アカウント間RLS隔離、実端末の同時オフライン競合、iOS Safari / Android Chromeのインストール・タッチ操作は追加検証が必要。
+- 曲カードのTag検索、Inbox Favorite、保存テンプレートの扱いは以前のPhaseからの仕様照合の残項目。今回のPhase IでV1全項目の完成とは扱いません。
 - 同じブラウザのローカルDBを別アカウントへ自動転用しません。別アカウントは別ブラウザプロファイルを使います。
-- 実機iOS/Androidは未検証。ブラウザテストはEdgeのDesktop / Phoneエミュレーション。
-- snapshotsは現時点で全domain読み取りを伴います。大規模データでの性能改善はPhase Iで検証。
+- ブラウザテストはEdgeのDesktop / Phoneエミュレーション。200 Node計測はこのPCでの機能・操作時間確認で、低性能端末のFPSを保証するものではありません。
+- チェックポイント作成時は全domainを読み取ります。大量データの継続的な実機評価は残ります。
 - Phase 2 / 3（AI、音声、リアルタイム共同編集等）は未実装・対象外。
-

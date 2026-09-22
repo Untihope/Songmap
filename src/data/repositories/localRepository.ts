@@ -1,11 +1,13 @@
 import { useSave } from '../../state/save'
-import Dexie from 'dexie'
+import Dexie, { type Transaction } from 'dexie'
 import { db, type SongMapDatabase } from '../local/database'
 import { domainTables, type DomainTable, type DomainTables, type DomainRecord } from '../../domain/models'
 type Change = { table:DomainTable; before?:DomainRecord; after:DomainRecord }
 export type Snapshot = { id:string; createdAt:string; records:{table:DomainTable;record:DomainRecord}[] }
 export class LocalRepository {
   private past:Change[][]=[];private future:Change[][]=[];private version=0;private listeners=new Set<()=>void>()
+  private transactions = new WeakMap<Transaction, Map<string, Change>>()
+  private lastCheckpoint = -Infinity
   constructor(readonly database: SongMapDatabase = db) {}
   subscribe=(listener:()=>void)=>{this.listeners.add(listener);return()=>{this.listeners.delete(listener)}}
   getHistoryVersion=()=>this.version
@@ -17,6 +19,10 @@ export class LocalRepository {
       const next={...record,revision:previous?previous.revision+1:1,updatedAt:new Date().toISOString()}
       await this.database.records(table).put(next)
       await this.database.syncQueue.put({id:crypto.randomUUID(),table,recordId:next.id,record:next,baseRevision:previous?.revision??0,createdAt:next.updatedAt})
+      const transaction = Dexie.currentTransaction
+      const changes = transaction && this.transactions.get(transaction)
+      const key = table + ':' + record.id
+      if (changes) changes.set(key, { table, before: changes.has(key) ? changes.get(key)!.before : previous, after: next })
       return next
     })
   }
@@ -35,20 +41,24 @@ export class LocalRepository {
   async atomic<T>(work:()=>Promise<T>,history=true):Promise<T>{
     if(Dexie.currentTransaction?.db===this.database)return work()
     let changes:Change[]=[]
+    let checkpointTime: number | undefined
     useSave.setState(s=>({writes:s.writes+1}))
     const result=await this.database.transaction('rw',[...domainTables,'syncQueue','trash','snapshots'],async()=>{
-      const before=await this.all()
+      const tracked = new Map<string, Change>()
+      this.transactions.set(Dexie.currentTransaction!, tracked)
+      const checkpointDue = Date.now() - this.lastCheckpoint >= 30_000 || await this.database.table('snapshots').count() === 0
+      const before = checkpointDue ? await this.all() : undefined
       const result=await work()
-      const after=await this.all()
-      const previous=new Map(before.map(r=>[r.table+':'+r.record.id,r.record]))
-      changes=after.filter(r=>JSON.stringify(previous.get(r.table+':'+r.record.id))!==JSON.stringify(r.record)).map(r=>({table:r.table,before:previous.get(r.table+':'+r.record.id),after:r.record}))
-      if(changes.length){
-        await this.database.table<Snapshot>('snapshots').put({id:crypto.randomUUID(),createdAt:new Date().toISOString(),records:before})
-        const snapshots=await this.database.table<Snapshot>('snapshots').orderBy('createdAt').toArray()
-        if(snapshots.length>5)await this.database.table('snapshots').bulkDelete(snapshots.slice(0,-5).map(s=>s.id))
+      changes = [...tracked.values()]
+      if(changes.length && before){
+        checkpointTime = Date.now()
+        await this.database.table<Snapshot>('snapshots').put({id:crypto.randomUUID(),createdAt:new Date(checkpointTime).toISOString(),records:before})
+        const ids=await this.database.table<Snapshot>('snapshots').orderBy('createdAt').primaryKeys()
+        if(ids.length>5)await this.database.table('snapshots').bulkDelete(ids.slice(0,-5))
       }
       return result
     }).catch(error=>{useSave.setState({error:true});throw error}).finally(()=>useSave.setState(s=>({writes:Math.max(0,s.writes-1)})))
+    if(checkpointTime!==undefined)this.lastCheckpoint=checkpointTime
     useSave.setState({error:false})
     if(history&&changes.length){this.past.push(changes);if(this.past.length>50)this.past.shift();this.future=[];this.emit()}
     return result
@@ -86,4 +96,3 @@ export class LocalRepository {
   }
 }
 export const repository=new LocalRepository()
-

@@ -1,0 +1,70 @@
+/* Keep the canvas mounted when changing views so viewport and selection survive. */
+.workspace{display:flex;flex-direction:column;height:calc(100dvh - 76px)}
+.workspace-bar{flex-shrink:0;gap:8px;padding:10px 16px}
+.workspace-bar>input{width:clamp(150px,16vw,260px)}
+.workspace .workspace-body{flex:1;height:auto;min-height:0;grid-template-columns:var(--sidebar-width,220px) minmax(0,1fr) var(--lyrics-width,340px)}
+.workspace.view-lyrics .workspace-body{grid-template-columns:var(--sidebar-width,220px) minmax(0,1fr) minmax(var(--lyrics-width,340px),45%)}
+.sidebar-closed .project-sidebar,.zen-view .project-sidebar{visibility:hidden;padding:0;border:0;overflow:hidden}
+.lyrics-closed .writing-panel{visibility:hidden;overflow:hidden;border:0}
+.workspace.lyrics-closed .workspace-body{grid-template-columns:var(--sidebar-width,220px) minmax(0,1fr) 0}
+.zen-view .fragment-box{display:none}
+.workspace.view-list .map-area{left:var(--sidebar-width,220px);right:var(--lyrics-width,340px)}
+.layout-controls{position:relative;font-size:12px}
+.layout-controls summary,.export-menu summary{display:flex;align-items:center;min-height:40px;padding:8px;cursor:pointer;list-style:none}
+.layout-controls .section-menu{width:260px;z-index:45;max-height:70dvh;overflow:auto}
+.layout-controls input[type=range]{width:100%;padding:8px 0;accent-color:var(--accent)}
+.workspace-tabs button[aria-pressed=true]{color:var(--accent);border-color:var(--accent)}
+.song-dialog{margin:auto;color:var(--text);box-shadow:0 18px 70px #0005;animation:appear 180ms ease-out}
+.song-dialog:not([open]){display:none}
+.song-dialog::backdrop{background:#0007;animation:appear 180ms ease-out}
+.song-dialog .quick-input{position:static;transform:none;width:100%;padding:0;margin:0}
+.song-dialog .quick-input input{width:100%}
+.search-results{display:grid;gap:18px;max-height:60dvh;overflow:auto}
+.search-results h3{font-size:12px;color:var(--accent);margin:0 0 8px}
+.search-results button{display:block;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;width:100%;margin:5px 0}
+.map-empty{position:absolute;left:20px;right:20px;top:40%;text-align:center;font-size:14px;color:var(--muted);pointer-events:none}
+.node-editor,.toast,.map-node,.lyric-line{animation:appear 180ms ease-out}
+button,a,summary{transition:background-color 160ms ease,border-color 160ms ease,color 160ms ease}
+.react-flow__node{transition:opacity 180ms ease}
+.lyrics-section{transition:background-color 180ms ease,border-color 180ms ease}
+.song-dialog .row{flex-wrap:wrap}
+.song-dialog .capture-form textarea{width:100%}
+.lyric-line textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+.line-more{opacity:1}
+@keyframes appear{from{opacity:0}to{opacity:1}}
+@media(min-width:641px) and (max-width:1023px){
+ .workspace .workspace-body{grid-template-columns:min(var(--sidebar-width),170px) minmax(0,1fr) min(var(--lyrics-width),300px)}
+ .workspace.lyrics-closed .workspace-body{grid-template-columns:min(var(--sidebar-width),170px) minmax(0,1fr) 0}
+ .workspace-bar>input{width:180px}
+}
+@media(max-width:640px){
+ .workspace{height:100dvh;padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+ .workspace-bar{height:auto;min-height:112px;padding:8px 12px;gap:4px 8px}
+ .workspace-bar>input{width:calc(100% - 52px)}
+ .workspace-bar>.history-buttons{margin-left:0}
+ .workspace-bar .save-status{margin-left:auto;font-size:10px}
+ .workspace-bar>.export-menu{margin-left:0}
+ .workspace .workspace-body{display:block;height:auto;min-height:0}
+ .workspace.view-list .map-area{left:0;right:0}
+ .workspace .writing-panel{visibility:visible}
+ .workspace .lyrics-panel{height:auto}
+ .workspace .fragment-box{display:block}
+ .workspace.view-lyrics .fragment-box{display:none}
+ .desktop-panel-options{display:none}
+ .layout-controls .section-menu{position:fixed;left:12px;right:12px;top:112px;width:auto}
+ .song-dialog{margin:auto 0 0;width:100%;max-width:100%;max-height:85dvh;border-radius:18px 18px 0 0}
+ .section-heading button,.section-heading summary,.fragment-item button,.source-link,.line-more,.canvas-top button{min-width:44px;min-height:44px}
+ .history-buttons button,.workspace-capture{min-height:44px;min-width:44px}
+ .source-link,.line-more{min-width:44px}
+ .section-heading .section-menu{position:fixed;left:12px;right:12px;top:auto;bottom:calc(74px + env(safe-area-inset-bottom));width:auto;max-height:60dvh;overflow:auto;z-index:40}
+ .react-flow__controls-button{width:44px;height:44px}
+}
+@media(max-width:1000px) and (max-height:500px) and (orientation:landscape){
+ .workspace{height:100dvh;padding-bottom:0}
+ .workspace-bar{min-height:54px;height:auto}
+ .workspace .workspace-body,.workspace.view-lyrics .workspace-body{display:grid;grid-template-columns:minmax(0,1fr) 40%}
+ .workspace .writing-panel{visibility:visible}
+ .desktop-panel-options{display:none}
+ .workspace-tabs{position:static!important;height:auto!important;width:auto!important;padding:0!important}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
