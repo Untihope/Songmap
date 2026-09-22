@@ -80,7 +80,7 @@ VITE_SUPABASE_ANON_KEY=YOUR-PUBLISHABLE-OR-ANON-KEY
 
 ### 実クラウド受入確認
 
-ユーザーからアカウント作成とPC⇄スマホ同期の成功報告あり。公開先は [Cloudflare Pages](https://songmap-7f1.pages.dev)。Phase Iの変更はローカルで検証済みで、公開版への再デプロイは別途必要です。
+ユーザーからアカウント作成とPC⇄スマホ同期の成功報告あり。公開先は [Cloudflare Pages](https://songmap-7f1.pages.dev)。Phase Iとマップ操作・枝分かれ修正は2026-09-23に公開版へ反映済みです。
 
 以下は詳細な実環境受入として残しています。
 
@@ -156,7 +156,7 @@ PWAはlocalhostまたはHTTPSで使用してください。
 
 ## 残課題と制限
 
-- Phase Iの公開版への再デプロイと、公開後のPC/スマホでの最終確認は未実施。
+- 公開後のPC/スマホでの最終確認は未実施。
 - 実Supabaseでの別アカウント間RLS隔離、実端末の同時オフライン競合、iOS Safari / Android Chromeのインストール・タッチ操作は追加検証が必要。
 - 曲カードのTag検索、Inbox Favorite、保存テンプレートの扱いは以前のPhaseからの仕様照合の残項目。今回のPhase IでV1全項目の完成とは扱いません。
 - 同じブラウザのローカルDBを別アカウントへ自動転用しません。別アカウントは別ブラウザプロファイルを使います。

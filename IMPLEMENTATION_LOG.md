@@ -99,7 +99,7 @@
 - 修正途中に検出した初期フォーカス・JavaScriptの改行解釈・寸法保持の問題は解消後、全チェックを再実行。
 
 ### 残課題
-- 今回はローカル実装と検証。Cloudflare公開版への反映は未実施。
+- Phase Iの実装時点ではローカル検証まで。その後2026-09-23にCloudflare公開版へ反映。
 - 実iOS/Androidのタッチ・PWA、公開後の携帯回線同期、別アカウントRLS隔離と実機同時オフライン競合は別途受入確認。
 - 以前から残るInbox Favorite・曲カードTag検索・保存テンプレートの仕様照合はREADMEに明記。Phase Iの検証成功をV1全体の完了とは混同しない。
 
@@ -112,4 +112,4 @@
 - 折りたたまれた親へ子を追加した場合は枝を展開。同時追加、長いノードの回避、Undo/Redo、既存Node保持をunitテストで確認。
 - 検証: lint / typecheck / test 28件 / build 成功。Desktop・Phone E2E 23件成功、Desktop専用計測のPhone実行1件は対象外。production PWA offline E2E 1件成功。
 - 追加E2E: ズーム連打でQuick Addが開かない、空白double clickでは開く、スライダーと倍率復元、見失った位置から全体表示、同じ親の3分岐とreload後の保持。
-- 公開版へのpush・再デプロイは未実施。既に重なっていた既存ノードの配置を一括変更する処理は行っていない。
+- `c9c033c`をGitHub `main`へpushし、Cloudflare公開版の新しいWorkspaceアセットにズーム操作と枝分かれUIが含まれることを確認。既に重なっていた既存ノードの配置を一括変更する処理は行っていない。
